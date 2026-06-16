@@ -16,13 +16,26 @@ variable "remote_ip" {
   description = "IP address that you will connect to the Immisch server from"
 }
 
-data "openstack_compute_flavor_v2" "flavor" {
-    name = "c1.c4r8"
+variable "public_ip" {
+  type = string
+  description = "IP address that you will connect to the Immisch server from"
 }
 
-data "openstack_images_image_v2" "ubuntu" {
-  name        = "ubuntu-26.04-x86_64"
-  most_recent = true
+variable "restic_password" {
+  type = string
+  description = "Back up password"
+  sensitive = true  
+}
+
+variable "app_cred_secret" {
+  type = string
+  description = "Backup App Cred secret"
+  sensitive = true  
+}
+
+variable "app_cred_id" {
+  type = string
+  description = "Back up app cred ID"
 }
 
 data "openstack_networking_router_v2" "router" {
@@ -98,7 +111,13 @@ resource "openstack_compute_instance_v2" "server" {
   flavor_name       = "c1.c4r8"
   key_pair        = openstack_compute_keypair_v2.keypair.name
   security_groups = [openstack_networking_secgroup_v2.security_group.name]
-  user_data       = templatefile("cloud-init.tftbl", { db_password = var.db_password } )
+  user_data       = templatefile("cloud-init.tftbl", {
+    db_password = var.db_password, 
+    app_cred_id = var.app_cred_id
+    app_cred_secret = var.app_cred_secret
+    auth_url = ""
+    restic_password = var.restic_password
+    } )
 
   block_device {
     delete_on_termination = true
@@ -127,37 +146,6 @@ data "openstack_networking_port_v2" "port" {
 }
 
 resource "openstack_networking_floatingip_associate_v2" "fip_vm" {
-  floating_ip = openstack_networking_floatingip_v2.floatip.address
+  floating_ip = var.public_ip
   port_id     = data.openstack_networking_port_v2.port.id
-}
-
-resource "openstack_lb_loadbalancer_v2" "lb" {
-  vip_subnet_id = openstack_networking_subnet_v2.subnet.id
-  name = "immich-lb"
-  security_group_ids = [ openstack_networking_secgroup_v2.security_group.id ]
-}
-
-resource "openstack_lb_listener_v2" "listener_1" {
-  name            = "immich-listener"
-  protocol        = "HTTP"
-  protocol_port   = 80
-  loadbalancer_id = openstack_lb_loadbalancer_v2.lb.id
-}
-
-resource "openstack_lb_pool_v2" "pool_1" {
-  name            = "immich-pool"
-  protocol        = "HTTP"
-  lb_method       = "ROUND_ROBIN"
-  loadbalancer_id = openstack_lb_loadbalancer_v2.lb.id
-}
-
-resource "openstack_lb_member_v2" "member_1" {
-  name = "immich-member"
-  address = openstack_compute_instance_v2.server.access_ip_v4
-  pool_id = openstack_lb_pool_v2.pool_1.id
-  protocol_port = 2283
-}
-
-output "server_ip" {
-  value = openstack_networking_floatingip_v2.floatip.address
 }
