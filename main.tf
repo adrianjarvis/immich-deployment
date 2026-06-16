@@ -42,6 +42,11 @@ data "openstack_networking_router_v2" "router" {
   name = "border-router"
 }
 
+data "openstack_images_image_v2" "ubuntu" {
+  name        = "ubuntu-26.04-x86_64"
+  most_recent = true
+}
+
 resource "openstack_compute_keypair_v2" "keypair" {
   name       = "immich-keypair"
   public_key = file(var.public_key)
