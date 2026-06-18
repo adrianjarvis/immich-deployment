@@ -1,6 +1,8 @@
 - name: Install Docker, Immich, Restic
   hosts: localhost
   become: true
+  vars_files:
+    - secret_vars.yml
   tasks:
     - name: Add Docker Repo
       deb822_repository:
@@ -98,7 +100,7 @@
           DB_DATA_LOCATION=/opt/immich/postgres
           TZ=Pacific/Auckland
           IMMICH_VERSION=v2
-          DB_PASSWORD={{db_password}}
+          DB_PASSWORD={{ db_password }}
           DB_USERNAME=postgres
           DB_DATABASE_NAME=immich
 
@@ -152,4 +154,3 @@
           - /opt/immich/docker-compose.yml
           - up
           - -d
-

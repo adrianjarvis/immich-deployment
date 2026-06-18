@@ -9,3 +9,18 @@ fs_setup:
   - {device: /dev/vdb1, filesystem: ext4, label: immich}
 mounts:
 - [/dev/vdb1, /opt/immich]
+
+write_files:
+- path: /home/ubuntu/vault.pass
+  content: ${vault_password}
+  owner: ubuntu:ubuntu
+  permissions: '0600'
+  defer: true
+
+ansible:
+  package_name: ansible-core
+  install_method: pip
+  pull:
+    - url: https://github.com/adrianjarvis/immich-deployment.git
+      playbook_names: [immich_server.yml]
+      vault_password_file: /home/ubuntu/vault.pass

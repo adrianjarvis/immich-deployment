@@ -1,7 +1,6 @@
-variable "db_password" {
+variable "vault_password" {
   type = string
-  description = "The password to use for the Postgres DB used by Immich"
-  default = "postgres"
+  description = "The ansible vault password"
   sensitive = true
 }
 
@@ -19,23 +18,6 @@ variable "remote_ip" {
 variable "public_ip" {
   type = string
   description = "IP address that you will connect to the Immisch server from"
-}
-
-variable "restic_password" {
-  type = string
-  description = "Back up password"
-  sensitive = true  
-}
-
-variable "app_cred_secret" {
-  type = string
-  description = "Backup App Cred secret"
-  sensitive = true  
-}
-
-variable "app_cred_id" {
-  type = string
-  description = "Back up app cred ID"
 }
 
 data "openstack_networking_router_v2" "router" {
@@ -117,11 +99,7 @@ resource "openstack_compute_instance_v2" "server" {
   key_pair        = openstack_compute_keypair_v2.keypair.name
   security_groups = [openstack_networking_secgroup_v2.security_group.name]
   user_data       = templatefile("cloud-init.tftbl", {
-    db_password = var.db_password, 
-    app_cred_id = var.app_cred_id
-    app_cred_secret = var.app_cred_secret
-    auth_url = ""
-    restic_password = var.restic_password
+      vault_pass = var.vault_password
     } )
 
   block_device {
