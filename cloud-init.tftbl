@@ -12,7 +12,7 @@ mounts:
 
 write_files:
 - path: /home/ubuntu/vault.pass
-  content: ${vault_password}
+  content: ${vault_pass}
   owner: ubuntu:ubuntu
   permissions: '0600'
   defer: true

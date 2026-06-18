@@ -98,9 +98,9 @@ resource "openstack_compute_instance_v2" "server" {
   flavor_name       = "c1.c4r8"
   key_pair        = openstack_compute_keypair_v2.keypair.name
   security_groups = [openstack_networking_secgroup_v2.security_group.name]
-  user_data       = templatefile("cloud-init.tftbl", {
-      vault_pass = var.vault_password
-    } )
+  user_data       = templatefile("cloud-init.tftbl", 
+    { vault_pass = var.vault_password } 
+    )
 
   block_device {
     delete_on_termination = true
