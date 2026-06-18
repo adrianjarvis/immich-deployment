@@ -109,6 +109,7 @@
         name: "{{item.name}}"
         env: true
         value: "{{item.value}}"
+        cron_file: restic
       loop:
         - name: MAILTO
           value: adrian.r.jarvis+immich@gmail.com
@@ -124,12 +125,15 @@
           value: "swift:immich_backup"
         - name: SWIFT_DEFAULT_CONTAINER_POLICY
           value: nz-por-1--o2--sr-standard
+      loop_control:
+        label: "{{ item.name }}"
 
     - name: Create cron entries for Restic
       ansible.builtin.cron:
         name: restic backup
         special_time: daily
         job: "restic backup {{item}} >> /var/log/immich_backup.log"
+        cron_file: restic
       loop:
         - /opt/immich/library
         - /opt/immich/object
