@@ -75,7 +75,23 @@
           YT90qFF93M3v01BbxP+EIY2/9tiIPbrd
           =0YYh
           -----END PGP PUBLIC KEY BLOCK-----
-        
+
+    - name: Get caddy gpg key
+      ansible.builtin.uri:
+        url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
+        return_content: true
+      register: caddy_gpg
+
+    - name: Add Caddy Repo
+      deb822_repository:
+        name: caddy
+        types: deb
+        uris: https://dl.cloudsmith.io/public/caddy/stable/deb/debian
+        suites: any-version
+        components:
+          - main
+        signed_by: "{{ caddy_gpg.content }}"
+
     - name: Install packages
       ansible.builtin.apt:
         update_cache: true
@@ -91,6 +107,7 @@
           - python3-venv
           - libaugeas-dev
           - gcc
+          - caddy
 
     - name: Write the docker compose
       ansible.builtin.get_url:
@@ -108,6 +125,7 @@
         env: true
         value: "{{item.value}}"
         cron_file: restic
+        user: ubuntu
       loop:
         - name: MAILTO
           value: adrian.r.jarvis+immich@gmail.com
@@ -173,23 +191,6 @@
           - dns-metaname 
           - -d 
           - photos.jarvis.kiwi.nz
-
-    - name: Get caddy gpg key
-      ansible.builtin.uri:
-        url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
-        return_content: true
-      register: caddy_gpg
-
-    - name: Add Caddy Repo
-      deb822_repository:
-        name: caddy
-        types: deb
-        uris: https://dl.cloudsmith.io/public/caddy/stable/deb/debian
-        suites: any-version
-        components:
-          - main
-        signed_by: "{{ caddy_gpg.content }}"
-
 
     - name: Start the immich container
       ansible.builtin.command:
