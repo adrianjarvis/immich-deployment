@@ -1,0 +1,25 @@
+- name: Get Docker GPG key
+  ansible.builtin.uri:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    return_content: true
+  register: docker_gpg
+
+- name: Add Docker Repo
+  deb822_repository:
+    name: docker
+    types: deb
+    uris: https://download.docker.com/linux/ubuntu
+    suites: resolute
+    components:
+      - stable
+    signed_by: "{{ docker_gpg.content }}"
+
+- name: Install packages
+  ansible.builtin.apt:
+    update_cache: true
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin

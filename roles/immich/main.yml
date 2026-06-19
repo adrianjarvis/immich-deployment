@@ -1,0 +1,21 @@
+---
+
+- name: Write the docker compose file
+  ansible.builtin.get_url:
+    url: https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml
+    dest: /opt/immich/docker-compose.yml
+
+- name: Write the docker env file
+  ansible.builtin.template:
+    dest: /opt/immich/.env
+    src: templates/immich_env.jinja
+
+- name: Start the immich container
+  ansible.builtin.command:
+    argv:
+      - docker
+      - compose
+      - -f
+      - /opt/immich/docker-compose.yml
+      - up
+      - -d

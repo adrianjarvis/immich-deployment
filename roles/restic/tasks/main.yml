@@ -1,0 +1,54 @@
+---
+
+- name: Install Restic
+  ansible.builtin.apt:
+    name:
+      - restic
+
+- name: Create cron variables for Restic
+  ansible.builtin.cron:
+    name: "{{item.name}}"
+    env: true
+    value: "{{item.value}}"
+    cron_file: restic
+    user: ubuntu
+  loop:
+    - name: MAILTO
+      value: adrian.r.jarvis+immich@gmail.com
+    - name: OS_AUTH_URL
+      value: https://api.nz-por-1.catalystcloud.io:5000/v3
+    - name: OS_APPLICATION_CREDENTIAL_ID
+      value: "{{app_cred_id}}"
+    - name: OS_APPLICATION_CREDENTIAL_SECRET
+      value: "{{app_cred_secret}}"
+    - name: RESTIC_PASSWORD
+      value: "{{restic_password}}"
+    - name: RESTIC_REPOSITORY
+      value: "swift:immich_backup"
+    - name: SWIFT_DEFAULT_CONTAINER_POLICY
+      value: nz-por-1--o2--sr-standard
+  loop_control:
+    label: "{{ item.name }}"
+
+- name: Create cron entries for Restic
+  ansible.builtin.cron:
+    name: restic backup
+    special_time: daily
+    job: "restic backup {{item}} >> /var/log/immich_backup.log"
+    cron_file: restic
+    user: ubuntu
+  loop:
+    - /opt/immich/library
+    - /opt/immich/object
+    - /opt/immich/profile
+
+- name: Create log rotate config for restic
+  ansible.builtin.copy:
+    dest: /etc/logrotate.d/restic
+    content: |
+      /var/log/immich_backup.log {
+        missingok
+        rotate 7
+        compress
+      }
+

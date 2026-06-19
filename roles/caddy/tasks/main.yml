@@ -1,0 +1,23 @@
+---
+
+- name: Get Caddy gpg key
+  ansible.builtin.uri:
+    url: https://dl.cloudsmith.io/public/caddy/stable/gpg.key
+    return_content: true
+  register: caddy_gpg
+
+- name: Add Caddy Repo
+  deb822_repository:
+    name: caddy
+    types: deb
+    uris: https://dl.cloudsmith.io/public/caddy/stable/deb/debian
+    suites: any-version
+    components:
+      - main
+    signed_by: "{{ caddy_gpg.content }}"
+
+- name: Install packages
+  ansible.builtin.apt:
+    update_cache: true
+    name:
+      - caddy
