@@ -32,7 +32,7 @@
 
 - name: Create cron entries for Restic
   ansible.builtin.cron:
-    name: restic backup
+    name: "restic backup {{item}}"
     special_time: daily
     job: "restic backup {{item}} >> /var/log/immich_backup.log"
     cron_file: restic
