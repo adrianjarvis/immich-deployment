@@ -1,0 +1,7 @@
+---
+
+- name: Caddy Reload
+  ansible.builtin.command:
+    argv:
+      - caddy
+      - reload

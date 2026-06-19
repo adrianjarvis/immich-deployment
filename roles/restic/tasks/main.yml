@@ -24,7 +24,7 @@
     - name: RESTIC_PASSWORD
       value: "{{restic_password}}"
     - name: RESTIC_REPOSITORY
-      value: "swift:immich_backup"
+      value: "swift:immich_backup:/"
     - name: SWIFT_DEFAULT_CONTAINER_POLICY
       value: nz-por-1--o2--sr-standard
   loop_control:

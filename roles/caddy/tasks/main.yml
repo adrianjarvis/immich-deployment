@@ -16,8 +16,21 @@
       - main
     signed_by: "{{ caddy_gpg.content }}"
 
-- name: Install packages
+- name: Install Go and Caddy
   ansible.builtin.apt:
     update_cache: true
     name:
+      - golang-go
       - caddy
+
+- name: Build Caddy with the Metaname extension
+  ansible.builtin.command:
+    argv:
+      - caddyx
+      - xcaddy build --with github.com/caddy-dns/metaname
+
+- name: Configure Caddy
+  ansible.builtin.template:
+    dest: /etc/caddy/Caddyfile
+    src: templates/Caddyfile.jinja
+  notify: Caddy Reload
