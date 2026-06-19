@@ -1,3 +1,17 @@
+terraform {
+  required_version = ">= 1.2"
+  required_providers {
+    openstack = {
+      source  = "terraform-provider-openstack/openstack"
+      version = "~> 2.1.0"
+    }
+    http = {
+      source  = "hashicorp/http"
+      version = "~> 3.3"
+    }
+  }
+}
+
 variable "vault_password" {
   type = string
   description = "The ansible vault password"
@@ -10,14 +24,9 @@ variable "public_key" {
   
 }
 
-variable "remote_ip" {
-  type = string
-  description = "IP address that you will connect to the Immisch server from"
-}
-
 variable "public_ip" {
   type = string
-  description = "IP address that you will connect to the Immisch server from"
+  description = "The floating IP to associate to the immish server"
 }
 
 data "openstack_networking_router_v2" "router" {
@@ -27,6 +36,14 @@ data "openstack_networking_router_v2" "router" {
 data "openstack_images_image_v2" "ubuntu" {
   name        = "ubuntu-26.04-x86_64"
   most_recent = true
+}
+
+data "http" "ip_info" {
+  url = "https://api.ipify.org?format=json"
+}
+
+locals {
+  remote_ip = jsondecode(data.http.ip_info.response_body)["ip"]
 }
 
 resource "openstack_compute_keypair_v2" "keypair" {
@@ -45,7 +62,7 @@ resource "openstack_networking_secgroup_rule_v2" "sg_rule_1" {
   protocol          = "tcp"
   port_range_min    = 22
   port_range_max    = 22
-  remote_ip_prefix  = join("/", [var.remote_ip, "32"])
+  remote_ip_prefix  = join("/", [local.remote_ip, "32"])
   security_group_id = openstack_networking_secgroup_v2.security_group.id
 }
 
@@ -55,7 +72,7 @@ resource "openstack_networking_secgroup_rule_v2" "sg_rule_2" {
   protocol          = "tcp"
   port_range_min    = 2283
   port_range_max    = 2283
-  remote_ip_prefix  = join("/", [var.remote_ip, "32"])
+  remote_ip_prefix  = join("/", [local.remote_ip, "32"])
   security_group_id = openstack_networking_secgroup_v2.security_group.id
 }
 
