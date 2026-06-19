@@ -6,6 +6,5 @@ Currently it creates a demo server that only allows access from a single source 
 
 TODO
 
-- Add LBaaS to allow TLS termination
-- Make the immich port public
-- Configure back ups to object storage
+- Use caddy for TLS termination
+- Use certbot with metaname plugin to get SSL certs
