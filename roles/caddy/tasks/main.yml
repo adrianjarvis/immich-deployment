@@ -18,15 +18,15 @@
 
 - name: Get XCaddy gpg key
   ansible.builtin.uri:
-    url: https://dl.cloudsmith.io/public/caddy/xcaddy/stable/gpg.key
+    url: https://dl.cloudsmith.io/public/caddy/xcaddy/gpg.key
     return_content: true
   register: xcaddy_gpg
 
-- name: Add Caddy Repo
+- name: Add XCaddy Repo
   deb822_repository:
     name: xcaddy
     types: deb
-    uris: https://dl.cloudsmith.io/public/caddy/xcaddy/stable/deb/debian
+    uris: https://dl.cloudsmith.io/public/caddy/xcaddy/deb/debian
     suites: any-version
     components:
       - main
