@@ -16,18 +16,37 @@
       - main
     signed_by: "{{ caddy_gpg.content }}"
 
-- name: Install Go and Caddy
+- name: Get XCaddy gpg key
+  ansible.builtin.uri:
+    url: https://dl.cloudsmith.io/public/caddy/xcaddy/stable/gpg.key
+    return_content: true
+  register: xcaddy_gpg
+
+- name: Add Caddy Repo
+  deb822_repository:
+    name: xcaddy
+    types: deb
+    uris: https://dl.cloudsmith.io/public/caddy/xcaddy/stable/deb/debian
+    suites: any-version
+    components:
+      - main
+    signed_by: "{{ xcaddy_gpg.content }}"
+
+- name: Install Go, Caddy and XCaddy
   ansible.builtin.apt:
     update_cache: true
     name:
       - golang-go
       - caddy
+      - xcaddy
 
 - name: Build Caddy with the Metaname extension
   ansible.builtin.command:
     argv:
-      - caddyx
-      - xcaddy build --with github.com/caddy-dns/metaname
+      - xcaddy
+      - build 
+      - --with 
+      - github.com/caddy-dns/metaname
 
 - name: Configure Caddy
   ansible.builtin.template:
