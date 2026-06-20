@@ -6,6 +6,5 @@
   roles:
     - docker
     - immich
-    - certbot
     - caddy
     - restic

@@ -47,9 +47,12 @@
       - build 
       - --with 
       - github.com/caddy-dns/metaname
+      - --output
+      - /usr/bin/caddy
+  notify: Caddy Restart
 
 - name: Configure Caddy
   ansible.builtin.template:
     dest: /etc/caddy/Caddyfile
     src: templates/Caddyfile.jinja
-  notify: Caddy Reload
+  notify: Caddy Restart

@@ -1,7 +1,6 @@
 ---
 
-- name: Caddy Reload
-  ansible.builtin.command:
-    argv:
-      - caddy
-      - reload
+- name: Caddy Restart
+  ansible.builtin.service:
+    name: caddy
+    state: restarted
