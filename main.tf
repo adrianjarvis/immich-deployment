@@ -70,9 +70,19 @@ resource "openstack_networking_secgroup_rule_v2" "sg_rule_2" {
   direction         = "ingress"
   ethertype         = "IPv4"
   protocol          = "tcp"
-  port_range_min    = 2283
-  port_range_max    = 2283
-  remote_ip_prefix  = join("/", [local.remote_ip, "32"])
+  port_range_min    = 443
+  port_range_max    = 443
+  remote_ip_prefix  = "0.0.0.0/0"
+  security_group_id = openstack_networking_secgroup_v2.security_group.id
+}
+
+resource "openstack_networking_secgroup_rule_v2" "sg_rule_3" {
+  direction         = "ingress"
+  ethertype         = "IPv4"
+  protocol          = "tcp"
+  port_range_min    = 80
+  port_range_max    = 80
+  remote_ip_prefix  = "0.0.0.0/0"
   security_group_id = openstack_networking_secgroup_v2.security_group.id
 }
 
