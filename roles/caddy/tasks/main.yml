@@ -44,7 +44,7 @@
   ansible.builtin.command:
     argv:
       - caddy
-      - --list-modules
+      - list-modules
   register: caddy_modules
   changed_when: false
 
