@@ -40,6 +40,14 @@
       - caddy
       - xcaddy
 
+- name: List the Caddy Modules
+  ansible.builtin.command:
+    argv:
+      - caddy
+      - --list-modules
+  register: caddy_modules
+  changed_when: false
+
 - name: Build Caddy with the Metaname extension
   ansible.builtin.command:
     argv:
@@ -49,6 +57,7 @@
       - github.com/caddy-dns/metaname
       - --output
       - /usr/bin/caddy
+  when: not 'dns.providers.metaname' in caddy_modules.stdout_lines
   notify: Caddy Restart
 
 - name: Configure Caddy

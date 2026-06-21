@@ -4,6 +4,7 @@
   ansible.builtin.apt:
     name:
       - restic
+      - postfix
 
 - name: Create cron variables for Restic
   ansible.builtin.cron:
@@ -32,15 +33,11 @@
 
 - name: Create cron entries for Restic
   ansible.builtin.cron:
-    name: "restic backup {{item}}"
+    name: "restic backup immich"
     special_time: daily
-    job: "restic backup {{item}} >> /var/log/immich_backup.log"
+    job: "restic backup /opt/immich/library >> /var/log/immich_backup.log"
     cron_file: restic
-    user: ubuntu
-  loop:
-    - /opt/immich/library
-    - /opt/immich/object
-    - /opt/immich/profile
+    user: root
 
 - name: Create log rotate config for restic
   ansible.builtin.copy:
